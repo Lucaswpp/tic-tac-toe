@@ -20,11 +20,15 @@ COLOR_CIRCLE = (243,0,0)
 RAIO_CIRCULO = 60
 CIRCLE_WIDTH = 15
 
+COLOR_X = (0,0,243)
+SPACE = 55
+WIDTH_X = 25
+
 
 class Game:
     def __init__(self):
         self.load_board()
-        self.player_turn = None
+        self.player_turn = "j2"
 
     def run(self):
         while True:
@@ -43,12 +47,22 @@ class Game:
             
 
             if pyg.mouse.get_pressed()[0]:
-                    
+
+                turn_state = None
+
                 pos_mouse = pyg.mouse.get_pos()
                 pos_linha =  int(pos_mouse[1] // 200)
                 pos_coluna = int(pos_mouse[0] // 200)
 
-                self.board[pos_linha][pos_coluna] = 1
+                if self.player_turn == "j1":
+                    turn_state = 2
+
+                elif self.player_turn == "j2":
+                    turn_state = 1
+
+                self.board[pos_linha][pos_coluna] = turn_state
+
+                self.trocar_turno()
 
 
     
@@ -75,8 +89,27 @@ class Game:
                 if self.board[line][col] == 1:
                     centro_circulo = (int(col*200+100),int(line*200+100))
                     pyg.draw.circle(janela,COLOR_CIRCLE,centro_circulo,RAIO_CIRCULO,15)
+                
+                elif self.board[line][col] == 2:
+                    pos_inicial_x_1 = (int(200 * col + SPACE), int(200 * line + 200 - SPACE))
+                    pos_final_y_1 = (int(200 * col + 200 - SPACE),int((200 * line + SPACE)))
 
-    
+                    pyg.draw.line(janela,COLOR_X,pos_inicial_x_1,pos_final_y_1,WIDTH_X)
+
+                    pos_inicial_x_2 = (int(200 * col + 200 - SPACE),int(line * 200 + 200 - SPACE))
+                    pos_final_y_2 = (int(200 * col + SPACE),int(200 * line + SPACE))
+
+                    pyg.draw.line(janela,COLOR_X,pos_inicial_x_2,pos_final_y_2,WIDTH_X)
+
+    def trocar_turno(self):
+        
+        if self.player_turn == "j1":
+            self.player_turn = "j2"
+        
+        elif self.player_turn == "j2":
+            self.player_turn = "j1"
+
+ 
 
 if __name__ == "__main__":
     game_object = Game()
