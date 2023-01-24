@@ -1,5 +1,6 @@
 import pygame as pyg
 from sys import exit
+from time import sleep
 
 pyg.init()
 
@@ -29,16 +30,23 @@ class Game:
     def __init__(self):
         self.load_board()
         self.player_turn = "j2"
+        self.game_run = True
+        self.stop_game_time = 2000
+        self.is_time_ready = False
+        self.game_time = 0
+        self.input_block = True
 
     def run(self):
-        while True:
+        while self.game_run:
             self.check_event()
             self.draw_game()
+            self.check_win()
             pyg.display.update()
             janela.fill(BACKGROUND_COLOR)
         
 
     def check_event(self):
+
         for evento in pyg.event.get():
 
             if evento.type == pyg.QUIT:
@@ -46,7 +54,7 @@ class Game:
                 exit()
             
 
-            if pyg.mouse.get_pressed()[0]:
+            if pyg.mouse.get_pressed()[0] and self.input_block:
 
                 turn_state = None
 
@@ -59,8 +67,11 @@ class Game:
 
                 elif self.player_turn == "j2":
                     turn_state = 1
-
-                self.board[pos_linha][pos_coluna] = turn_state
+                
+                if self.board[pos_linha][pos_coluna] == 0:
+                    self.board[pos_linha][pos_coluna] = turn_state
+                else:
+                    return
 
                 self.trocar_turno()
 
@@ -108,8 +119,44 @@ class Game:
         
         elif self.player_turn == "j2":
             self.player_turn = "j1"
+    
+    def check_win(self):
 
- 
+        self.check_win_vertical()
+    
+
+    def check_win_vertical(self):
+
+        for col in range(3):
+            lines = []
+            for line in range(3):
+                peca = self.board[line][col]
+                lines.append(peca)
+
+            if lines.count(1) >= 3:
+                
+                if self.is_timer_over():
+                    self.game_run = False
+                
+                calc_pos_line_inicial = (col * 200 + 100,20)
+                calc_pos_line_final = (col * 200 + 100,600 - 20)
+                pyg.draw.line(janela,"#fac194",calc_pos_line_inicial,calc_pos_line_final,10)
+
+
+    
+    def is_timer_over(self):
+
+        if not self.is_time_ready:
+            self.game_time = pyg.time.get_ticks()
+            self.is_time_ready = True
+            self.input_block = False
+
+        current_time = pyg.time.get_ticks()
+        tempo = abs(self.game_time - current_time) >= self.stop_game_time
+
+        if tempo:
+            return True
+
 
 if __name__ == "__main__":
     game_object = Game()
